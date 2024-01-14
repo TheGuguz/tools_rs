@@ -2,11 +2,7 @@
 
 /*  */
 
-use std::collections::HashMap;
-
-/*  */
-
-/*  */
+use std::collections::*;
 
 /*  */
 
@@ -1381,10 +1377,10 @@ mod tests {
             bench(func, get_function_name_short(func), n, q);
 
             let func = first_alphabetic_hm_matches_int_;
-            bench(func, get_function_name_short(func), n, q);
+            // bench(func, get_function_name_short(func), n, q);
 
             let func = first_alphabetic_hm_range_l_;
-            bench(func, get_function_name_short(func), n, q);
+            // bench(func, get_function_name_short(func), n, q);
 
             let func = first_alphabetic_hm_range_u_;
             //bench(func, get_function_name_short(func), n, q);
@@ -1399,7 +1395,7 @@ mod tests {
             //bench(func, get_function_name_short(func), n, q);
 
             let func = first_alphabetic_starts_;
-            //bench(func, get_function_name_short(func), n, q);
+            bench(func, get_function_name_short(func), n, q);
         }
     }
 
