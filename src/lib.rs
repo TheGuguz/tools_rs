@@ -179,11 +179,12 @@ pub fn bench(func: fn(), func_name: &str, n: usize, q: usize) {
     let each = elapsed.div_f64(times as f64);
 
     println!(
-        " => [ Executed {:?} {} times in {:.?} ] -> [ Duration: {}ns each ]",
+        " => [ Executed {:?} {} times in {:.?} ] -> [ Duration: {}ns each ({:?})]",
         func_name,
         with_sep(times),
         elapsed,
         each.as_nanos(),
+        each
     );
 
     // println!();
