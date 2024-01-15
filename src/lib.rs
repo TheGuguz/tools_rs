@@ -92,30 +92,30 @@ pub const NULL: u8 = b'\0'; // Null character
 /*  */
 
 /* SCALING */
-pub fn kilo(x: usize) -> usize {
-    x * 1_000
+pub fn kilo(n: usize) -> usize {
+    n * 1_000
 }
-pub fn mega(x: usize) -> usize {
-    x * 1_000_000
+pub fn mega(n: usize) -> usize {
+    n * 1_000_000
 }
-pub fn giga(x: usize) -> usize {
-    x * 1_000_000_000
+pub fn giga(n: usize) -> usize {
+    n * 1_000_000_000
 }
-pub fn tera(x: usize) -> usize {
-    x * 1_000_000_000_000
+pub fn tera(n: usize) -> usize {
+    n * 1_000_000_000_000
 }
 
-pub fn kb(x: usize) -> usize {
-    x << 10 // x1024
+pub fn kb(n: usize) -> usize {
+    n << 10 // x1024
 }
-pub fn mb(x: usize) -> usize {
-    x << 20 // x1048576
+pub fn mb(n: usize) -> usize {
+    n << 20 // x1048576
 }
-pub fn gb(x: usize) -> usize {
-    x << 30 // x1073741824
+pub fn gb(n: usize) -> usize {
+    n << 30 // x1073741824
 }
-pub fn tb(x: usize) -> usize {
-    x << 40 // x1099511627776
+pub fn tb(n: usize) -> usize {
+    n << 40 // x1099511627776
 }
 
 /*  */
@@ -139,31 +139,31 @@ pub fn print_map<K: std::fmt::Debug, V: std::fmt::Debug>(src: &HashMap<K, V>) {
 
 /*  */
 
-pub fn separated(src: usize) -> String {
-    src.to_string()
+pub fn separated(n: usize) -> String {
+    n.to_string()
         .as_bytes()
         .rchunks(3)
         .rev()
-        .map(|byte| unsafe { std::str::from_utf8_unchecked(&byte) })
+        .map(|b| unsafe { std::str::from_utf8_unchecked(&b) })
         .collect::<Vec<_>>()
         .join(",") // separator
 }
 
-pub fn get_function_name<F: Fn()>(_: F) -> &'static str {
+pub fn get_name<F: Fn()>(_: F) -> &'static str {
     std::any::type_name::<F>()
 }
 
-pub fn get_function_name_short<F: Fn()>(_: F) -> &'static str {
+pub fn get_name_short<F: Fn()>(_: F) -> &'static str {
     std::any::type_name::<F>().rsplit_once(':').unwrap().1
 }
 
 /*  */
 
 /* BENCH */
-pub fn bench(func: fn(), func_name: &str, n: usize, q: usize) {
+pub fn bench(func: fn(), func_name: &str, times: usize, exprs: usize) {
     // println!();
 
-    let mut i = n;
+    let mut i = times;
     let now = std::time::Instant::now();
 
     while i > 0 {
@@ -177,7 +177,7 @@ pub fn bench(func: fn(), func_name: &str, n: usize, q: usize) {
 
     let elapsed = now.elapsed();
 
-    let times = n * q;
+    let times = times * exprs;
     let each = elapsed.div_f64(times as f64);
 
     println!(
@@ -195,21 +195,21 @@ pub fn bench(func: fn(), func_name: &str, n: usize, q: usize) {
 /*  */
 
 /* STRING CHECKS */
-pub fn first_alphabetic_hm_matches_byt_best(src: &str) -> bool {
-    matches!(ASCII_LOWERCASE | src.as_bytes()[0], b'a'..=b'z') // to lower
+pub fn first_alphabetic_hm_matches_byt_best(s: &str) -> bool {
+    matches!(ASCII_LOWERCASE | s.as_bytes()[0], b'a'..=b'z') // to lower
 }
 
-pub fn first_alphabetic_hm_matches_int(src: &str) -> bool {
-    matches!(ASCII_LOWERCASE | src.as_bytes()[0], 0x61..=0x7A) // to lower
+pub fn first_alphabetic_hm_matches_int(s: &str) -> bool {
+    matches!(ASCII_LOWERCASE | s.as_bytes()[0], 0x61..=0x7A) // to lower
 }
 
-pub fn first_alphabetic_hm_range_l(src: &str) -> bool {
-    let lower = ASCII_LOWERCASE | src.as_bytes()[0]; // to lower
+pub fn first_alphabetic_hm_range_l(s: &str) -> bool {
+    let lower = ASCII_LOWERCASE | s.as_bytes()[0]; // to lower
     lower > 0x60 && lower < 0x7B
 }
 
-pub fn first_alphabetic_hm_range_u(src: &str) -> bool {
-    let byte = src.as_bytes()[0];
+pub fn first_alphabetic_hm_range_u(s: &str) -> bool {
+    let byte = s.as_bytes()[0];
     let upper = if byte < 0x61 {
         byte
     } else {
@@ -218,57 +218,95 @@ pub fn first_alphabetic_hm_range_u(src: &str) -> bool {
     upper > 0x40 && upper < 0x5B
 }
 
-pub fn first_alphabetic_bytes(src: &str) -> bool {
-    (src.as_bytes()[0]).is_ascii_alphabetic()
+pub fn first_alphabetic_bytes(s: &str) -> bool {
+    (s.as_bytes()[0]).is_ascii_alphabetic()
 }
 
-pub fn first_alphabetic_match(src: &str) -> bool {
-    match src.bytes().next() {
+pub fn first_alphabetic_match(s: &str) -> bool {
+    match s.bytes().next() {
         Some(b) => matches!(ASCII_LOWERCASE | b, b'a'..=b'z'),
         None => false,
     }
 }
 
-pub fn first_alphabetic_next(src: &str) -> bool {
-    src.bytes().next().unwrap().is_ascii_alphabetic()
+pub fn first_alphabetic_next(s: &str) -> bool {
+    s.bytes().next().unwrap().is_ascii_alphabetic()
 }
 
-pub fn first_alphabetic_starts(src: &str) -> bool {
-    src.starts_with(|c: char| c.is_ascii_alphabetic())
+pub fn first_alphabetic_starts(s: &str) -> bool {
+    s.starts_with(|c: char| c.is_ascii_alphabetic())
 }
 
 /*  */
 
-pub fn is_alphabetic(src: &str) -> bool {
-    src.bytes()
-        .all(|b: u8| b == b'_' || b.is_ascii_alphabetic())
+pub fn is_alphabetic(s: &str) -> bool {
+    // s.bytes().all(|b: u8| b == b'_' || b.is_ascii_alphabetic())
+    for b in s.bytes() {
+        match b {
+            b'_' | b'A'..=b'Z' | b'a'..=b'z' => (),
+            _ => return false,
+        }
+    }
+    true
 }
 
-pub fn is_alphanumeric(src: &str) -> bool {
-    src.bytes()
-        .all(|b: u8| b == b'_' || b.is_ascii_alphanumeric())
+pub fn is_alphanumeric(s: &str) -> bool {
+    // s.bytes().all(|b: u8| b == b'_' || b.is_ascii_alphanumeric())
+    for b in s.bytes() {
+        match b {
+            b'_' | b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' => (),
+            _ => return false,
+        }
+    }
+    true
 }
 
-pub fn is_hexadecimal(src: &str) -> bool {
-    src.bytes().all(|b: u8| b == b'_' || b.is_ascii_hexdigit())
+pub fn is_hexadecimal(s: &str) -> bool {
+    // s.bytes().all(|b: u8| b == b'_' || b.is_ascii_hexdigit())
+    for b in s.bytes() {
+        match b {
+            b'_' | b'A'..=b'F' | b'a'..=b'f' | b'0'..=b'9' => (),
+            _ => return false,
+        }
+    }
+    true
 }
 
 pub fn is_decimal(s: &str) -> bool {
-    s.bytes().all(|b: u8| b == b'_' || b.is_ascii_digit())
+    // s.bytes().all(|b: u8| b == b'_' || b.is_ascii_digit())
+    for b in s.bytes() {
+        match b {
+            b'_' | b'0'..=b'9' => (),
+            _ => return false,
+        }
+    }
+    true
 }
 
-pub fn is_octal_int(src: &str) -> bool {
-    src.bytes()
-        .all(|b: u8| b == b'_' || matches!(b, 0x30..=0x37))
+pub fn is_octal_int(s: &str) -> bool {
+    // s.bytes().all(|b: u8| b == b'_' || matches!(b, 0x30..=0x37))
+    for b in s.bytes() {
+        match b {
+            0x5F | 0x30..=0x37 => (),
+            _ => return false,
+        }
+    }
+    true
 }
 
-pub fn is_octal_byt(src: &str) -> bool {
-    src.bytes()
-        .all(|b: u8| b == b'_' || matches!(b, b'0'..=b'7'))
+pub fn is_octal_byt(s: &str) -> bool {
+    // s.bytes().all(|b: u8| b == b'_' || matches!(b, b'0'..=b'7'))
+    for b in s.bytes() {
+        match b {
+            b'_' | b'0'..=b'7' => (),
+            _ => return false,
+        }
+    }
+    true
 }
 
-pub fn is_binary_hm_best(src: &str) -> bool {
-    for b in src.bytes() {
+pub fn is_binary_hm_best(s: &str) -> bool {
+    for b in s.bytes() {
         if !(b == b'0' || b == b'1' || b == b'_') {
             return false;
         }
@@ -276,8 +314,8 @@ pub fn is_binary_hm_best(src: &str) -> bool {
     true
 }
 
-pub fn is_binary_hm_matches(src: &str) -> bool {
-    for b in src.bytes() {
+pub fn is_binary_hm_matches(s: &str) -> bool {
+    for b in s.bytes() {
         if !matches!(b, b'0' | b'1' | b'_') {
             return false;
         }
@@ -285,116 +323,116 @@ pub fn is_binary_hm_matches(src: &str) -> bool {
     return true;
 }
 
-pub fn is_binary_all(src: &str) -> bool {
-    src.bytes().all(|b: u8| b == b'_' || b == b'0' || b == b'1')
+pub fn is_binary_all(s: &str) -> bool {
+    s.bytes().all(|b: u8| b == b'_' || b == b'0' || b == b'1')
 }
 
-pub fn is_binary_not_any(src: &str) -> bool {
-    !src.bytes()
+pub fn is_binary_not_any(s: &str) -> bool {
+    !s.bytes()
         .any(|b: u8| !(b == b'_' || b == b'0' || b == b'1'))
 }
 
 /*  */
 
 /* STRING CLEAN-UP (Return the String with characters stripped) */
-pub fn strip_non_alphanumeric(src: &str) -> String {
-    src.chars().filter(|c: &char| c.is_alphanumeric()).collect()
+pub fn strip_non_alphanumeric(s: &str) -> String {
+    s.chars().filter(|c: &char| c.is_alphanumeric()).collect()
 }
 
-pub fn strip_non_hexadecimal(src: &str) -> String {
-    src.chars().filter(|c: &char| c.is_digit(16)).collect()
+pub fn strip_non_hexadecimal(s: &str) -> String {
+    s.chars().filter(|c: &char| c.is_digit(16)).collect()
 }
 
-pub fn strip_non_decimal(src: &str) -> String {
-    src.chars().filter(|c: &char| c.is_digit(10)).collect()
+pub fn strip_non_decimal(s: &str) -> String {
+    s.chars().filter(|c: &char| c.is_digit(10)).collect()
 }
 
 /*  */
 
 /* STRING to HEX STRING CONVERSIONS (Return a 'hex String' from a 'xxx String')  */
-pub fn bin2hex(src: &str) -> String {
-    format!("{:X}", u8::from_str_radix(src, 2).unwrap())
+pub fn bin2hex(s: &str) -> String {
+    format!("{:X}", u8::from_str_radix(s, 2).unwrap())
 }
 
-pub fn oct2hex(src: &str) -> String {
-    format!("{:X}", u8::from_str_radix(src, 8).unwrap())
+pub fn oct2hex(s: &str) -> String {
+    format!("{:X}", u8::from_str_radix(s, 8).unwrap())
 }
 
-pub fn dec2hex(src: &str) -> String {
-    format!("{:X}", u8::from_str_radix(src, 10).unwrap())
+pub fn dec2hex(s: &str) -> String {
+    format!("{:X}", u8::from_str_radix(s, 10).unwrap())
 }
 
 /*  */
 
 /* STRING to UINT CONVERSIONS (Return a 'number' from a 'String') */
-pub fn any2usize(src: &str) -> usize {
+pub fn any2usize(s: &str) -> usize {
     // If the string starts with the '<' or '>' character, only the last, or first byte value are returned.
     // Then this function strip all non-valid characters and identify the Radix from the ASM or C prefixes.
-    let (stripped, radix) = if src.starts_with('<') {
+    let (stripped, radix) = if s.starts_with('<') {
         (
-            src.replace("<", "")
+            s.replace("<", "")
                 .replace("$", "")
                 .replace("0x", "")
                 .replace("_", "")[2..]
                 .to_string(),
             16,
         )
-    } else if src.starts_with('>') {
+    } else if s.starts_with('>') {
         (
-            src.replace(">", "")
+            s.replace(">", "")
                 .replace("$", "")
                 .replace("0x", "")
                 .replace("_", "")[..2]
                 .to_string(),
             16,
         )
-    } else if src.starts_with("$") || src.starts_with("0x") {
-        (src.replace("_", "").replace("$", "").replace("0x", ""), 16)
-    } else if src.starts_with("&") || src.starts_with("0o") {
-        (src.replace("_", "").replace("&", "").replace("0o", ""), 8)
-    } else if src.starts_with("%") || src.starts_with("0b") {
-        (src.replace("_", "").replace("%", "").replace("0b", ""), 2)
+    } else if s.starts_with("$") || s.starts_with("0x") {
+        (s.replace("_", "").replace("$", "").replace("0x", ""), 16)
+    } else if s.starts_with("&") || s.starts_with("0o") {
+        (s.replace("_", "").replace("&", "").replace("0o", ""), 8)
+    } else if s.starts_with("%") || s.starts_with("0b") {
+        (s.replace("_", "").replace("%", "").replace("0b", ""), 2)
     } else {
-        (src.replace("_", ""), 10)
+        (s.replace("_", ""), 10)
     };
     usize::from_str_radix(&stripped, radix).unwrap()
 }
 
 /*  */
 
-pub fn hex2u8_from(src: &str) -> u8 {
-    u8::from_str_radix(src, 16).unwrap()
+pub fn hex2u8_from(s: &str) -> u8 {
+    u8::from_str_radix(s, 16).unwrap()
 }
 
-pub fn hex2u16_from(src: &str) -> u16 {
-    u16::from_str_radix(src, 16).unwrap()
+pub fn hex2u16_from(s: &str) -> u16 {
+    u16::from_str_radix(s, 16).unwrap()
 }
 
-pub fn hex2u32_from(src: &str) -> u32 {
-    u32::from_str_radix(src, 16).unwrap()
-}
-
-/*  */
-
-pub fn dec2u8_parse_best(src: &str) -> u8 {
-    src.parse::<u8>().unwrap()
-}
-
-pub fn dec2u8_from(src: &str) -> u8 {
-    u8::from_str_radix(src, 10).unwrap()
+pub fn hex2u32_from(s: &str) -> u32 {
+    u32::from_str_radix(s, 16).unwrap()
 }
 
 /*  */
 
-pub fn dec2u16_parse(src: &str) -> u16 {
+pub fn dec2u8_parse_best(s: &str) -> u8 {
+    s.parse::<u8>().unwrap()
+}
+
+pub fn dec2u8_from(s: &str) -> u8 {
+    u8::from_str_radix(s, 10).unwrap()
+}
+
+/*  */
+
+pub fn dec2u16_parse(s: &str) -> u16 {
     // asm: 190 lines
-    src.parse::<u16>().unwrap()
+    s.parse::<u16>().unwrap()
 }
 
 /*  */
 
-pub fn bin2u8_from(src: &str) -> u8 {
-    u8::from_str_radix(src, 2).unwrap()
+pub fn bin2u8_from(s: &str) -> u8 {
+    u8::from_str_radix(s, 2).unwrap()
 }
 
 pub fn oct2u8_from(s: &str) -> u8 {
@@ -404,41 +442,41 @@ pub fn oct2u8_from(s: &str) -> u8 {
 /*  */
 
 /* UINT to STRING CONVERSIONS (Return a 'String' representing a 'number') */
-pub fn u8_to_decimal(src: u8) -> String {
-    format!("{}", src)
+pub fn u8_to_decimal(n: u8) -> String {
+    format!("{}", n)
 }
 
-pub fn u16_to_decimal(src: u16) -> String {
-    format!("{}", src)
+pub fn u16_to_decimal(n: u16) -> String {
+    format!("{}", n)
 }
 
 /*  */
 
-pub fn u8_to_hexadecimal(src: u8) -> String {
-    format!("{:02X}", src)
+pub fn u8_to_hexadecimal(n: u8) -> String {
+    format!("{:02X}", n)
 }
 
-pub fn u16_to_hexadecimal_be(src: u16) -> String {
-    let [hi, lo] = src.to_be_bytes();
+pub fn u16_to_hexadecimal_be(n: u16) -> String {
+    let [hi, lo] = n.to_be_bytes();
     format!("{:02X}", hi) + &format!("{:02X}", lo)
 }
 
 /*  */
 
-pub fn struct2dec(vec: &[usize]) -> usize {
-    vec.iter().fold(0, |acc, elem| acc * 10 + elem)
+pub fn struct2dec(src: &[usize]) -> usize {
+    src.iter().fold(0, |acc, elem| acc * 10 + elem)
 }
 
 /*  */
 
 /* BYTE MANIP */
-pub fn invert_byte(src: u8) -> u8 {
-    !src
+pub fn invert_byte(byt: u8) -> u8 {
+    !byt
 }
 
-pub fn negate_byte(src: u8) -> u8 {
+pub fn negate_byte(byt: u8) -> u8 {
     // 1 + !src
-    src.wrapping_neg()
+    byt.wrapping_neg()
 }
 
 /*  */
@@ -448,26 +486,26 @@ pub fn toggle_bool(src: &mut bool) {
     *src = !*src;
 }
 
-pub fn get_nth_bit(src: u8, pos: u8) -> u8 {
-    (src >> pos) & 1
+pub fn get_nth_bit(n: u8, pos: u8) -> u8 {
+    (n >> pos) & 1
 }
 
-pub fn get_lowest_bit_match_tz_best(src: u8) -> Option<u32> {
+pub fn get_lowest_bit_match_tz_best(n: u8) -> Option<u32> {
     // Returns the lsb bit position index (0..7) from a uint ; None if the uint is zero.
-    match src {
+    match n {
         0 => None,
-        _ => Some(src.trailing_zeros()),
+        _ => Some(n.trailing_zeros()),
     }
 }
 
-pub fn get_lowest_bit_match_match(src: u8) -> Option<u32> {
+pub fn get_lowest_bit_match_match(n: u8) -> Option<u32> {
     // Returns the lsb bit position index (0..7) from a uint ; None if the uint is zero.
     let mut pos: u32 = 0;
-    match src {
+    match n {
         0 => None,
         _ => {
             while pos < 8 {
-                match (src >> pos) & 1 != 0 {
+                match (n >> pos) & 1 != 0 {
                     true => break,
                     false => pos += 1,
                 }
@@ -477,14 +515,14 @@ pub fn get_lowest_bit_match_match(src: u8) -> Option<u32> {
     }
 }
 
-pub fn get_lowest_bit_match_if(src: u8) -> Option<u32> {
+pub fn get_lowest_bit_match_if(n: u8) -> Option<u32> {
     // Returns the lsb bit position index (0..7) from a uint ; None if the uint is zero.
     let mut pos: u32 = 0;
-    match src {
+    match n {
         0 => None,
         _ => {
             while pos < 8 {
-                if (src >> pos) & 1 != 0 {
+                if (n >> pos) & 1 != 0 {
                     break;
                 } else {
                     pos += 1;
@@ -496,37 +534,37 @@ pub fn get_lowest_bit_match_if(src: u8) -> Option<u32> {
 }
 
 pub fn sr_bit(src: &mut u8, mask: u8, cond: u8) {
-    // Conditionally set or clear bits in place ; src: source byte ; mask: value (1, 2, 4, 8...) of the manipulated bit ; cond: O=clear, 1=set
+    // Conditionally set or clear bits in place ; s: source byte ; mask: value (1, 2, 4, 8...) of the manipulated bit ; cond: O=clear, 1=set
     *src = *src ^ (cond.wrapping_neg() ^ *src) & mask;
 }
 
 pub fn sr_bit_new(src: u8, mask: u8, cond: u8) -> u8 {
-    // Return a byte with conditionally set or clear bits ; src: source byte ; mask: value (1, 2, 4, 8...) of the manipulated bit ; cond: O=clear, 1=set
+    // Return a byte with conditionally set or clear bits ; s: source byte ; mask: value (1, 2, 4, 8...) of the manipulated bit ; cond: O=clear, 1=set
     src ^ (cond.wrapping_neg() ^ src) & mask
 }
 
 /*  */
 
 /* SPLIT BYTES */
-pub fn u16_to_le_bytes(src: u16) -> [u8; 2] {
+pub fn u16_to_le_bytes(n: u16) -> [u8; 2] {
     // 5
-    src.to_le_bytes()
+    n.to_le_bytes()
 }
 
-pub fn u16_to_le_bytes_hm_(src: u16) -> [u8; 2] {
+pub fn u16_to_le_bytes_hm_(n: u16) -> [u8; 2] {
     // 6
-    // [(src & 0x00FF) as u8, ((src & 0xFF00) >> 8) as u8]
-    [src as u8, ((src & 0xFF00) >> 8) as u8]
+    // [(s & 0x00FF) as u8, ((s & 0xFF00) >> 8) as u8]
+    [n as u8, ((n & 0xFF00) >> 8) as u8]
 }
 
-pub fn u16_to_be_bytes(src: u16) -> [u8; 2] {
+pub fn u16_to_be_bytes(n: u16) -> [u8; 2] {
     // 5
-    src.to_be_bytes()
+    n.to_be_bytes()
 }
 
-pub fn u16_to_be_bytes_hm_best(src: u16) -> [u8; 2] {
+pub fn u16_to_be_bytes_hm_best(n: u16) -> [u8; 2] {
     // 6
-    [((src & 0xFF00) >> 8) as u8, src as u8]
+    [((n & 0xFF00) >> 8) as u8, n as u8]
 }
 
 /*  */
@@ -562,20 +600,20 @@ pub fn bool_to_u8(src: bool) -> u8 {
 }
 
 // To Bool
-pub fn u8_to_bool(src: u8) -> bool {
-    src != 0
+pub fn u8_to_bool(n: u8) -> bool {
+    n != 0
 }
 
-pub fn int_to_bool<T: std::cmp::PartialEq<isize>>(src: T) -> bool {
-    src != 0
+pub fn int_to_bool<T: std::cmp::PartialEq<isize>>(n: T) -> bool {
+    n != 0
 }
 
 /*  */
 
 // To String
-pub fn str_to_string(src: &str) -> String {
+pub fn str_to_string(s: &str) -> String {
     // From: 'str' to: 'String'
-    String::from(src)
+    String::from(s)
 }
 
 pub fn bytes_to_string(src: Vec<u8>) -> String {
@@ -589,14 +627,14 @@ pub fn chars_to_string(src: Vec<char>) -> String {
 }
 
 // To Bytes
-pub fn str_to_bytes(src: &str) -> Vec<u8> {
+pub fn str_to_bytes(s: &str) -> Vec<u8> {
     // From: 'str' to: 'Vec<u8>'
-    src.as_bytes().to_vec()
+    s.as_bytes().to_vec()
 }
 
-pub fn string_to_bytes(src: String) -> Vec<u8> {
+pub fn string_to_bytes(s: String) -> Vec<u8> {
     // From: 'String' to: 'Vec<u8>'
-    src.as_bytes().to_vec()
+    s.as_bytes().to_vec()
 }
 
 pub fn chars_to_bytes(src: Vec<char>) -> Vec<u8> {
@@ -607,14 +645,14 @@ pub fn chars_to_bytes(src: Vec<char>) -> Vec<u8> {
 /*  */
 
 // To Chars
-pub fn str_to_chars(src: &str) -> Vec<char> {
+pub fn str_to_chars(s: &str) -> Vec<char> {
     // From: 'str' to: 'Vec<char>'
-    src.chars().collect::<Vec<char>>()
+    s.chars().collect::<Vec<char>>()
 }
 
-pub fn string_to_chars(src: String) -> Vec<char> {
+pub fn string_to_chars(s: String) -> Vec<char> {
     // From: 'String' to: 'Vec<char>'
-    src.chars().collect::<Vec<char>>()
+    s.chars().collect::<Vec<char>>()
 }
 
 pub fn bytes_to_chars(src: Vec<u8>) -> Vec<char> {
@@ -626,13 +664,13 @@ pub fn bytes_to_chars(src: Vec<u8>) -> Vec<char> {
 
 // To &str ([!]Lifetime[!] Use directly not in a function)
 // From: 'String' to: '&str'
-// let new_str: &str = &src
+// let new_str: &str = &s
 
 // From: 'Vec<u8>' to: '&str'
-// let new_str: &str = std::str::from_utf8(&src).expect(ERR)
+// let new_str: &str = std::str::from_utf8(&s).expect(ERR)
 
 // From: 'Vec<char>' to: '&str'
-// let new_str: &str = &src.iter().collect::<String>()
+// let new_str: &str = &s.iter().collect::<String>()
 
 /*  */
 
@@ -685,11 +723,6 @@ pub fn generic_add<T: std::ops::Add<Output = T>>(lhs: T, rhs: T) -> T {
     lhs + rhs
 }
 
-// pub fn quit(msg: &str, code: i32) {
-//     println!("\n[{}] Exiting with code {}", msg, code);
-//     std::process::exit(code);
-// }
-
 /*  */
 
 /* EXPERIMENTS */
@@ -738,15 +771,19 @@ pub const MAX_U32: u32 = u32::MAX;
 pub const MAX_U64: u64 = u64::MAX;
 
 pub const E_F32: f32 = std::f32::consts::E; // 2.7182817 (Euler’s number)
-                                            // pub const GOLD_BIG_F32: f32 = std::f32::consts::PHI; // 1.618034 (Golden Ratio)
-                                            // pub const GOLD_SMALL_F32: f32 = 1f32 / GOLD_BIG_F32; // 0.618034 (Golden Ratio_)
+
+// pub const GOLD_BIG_F32: f32 = std::f32::consts::PHI; // 1.618034 (Golden Ratio)
+// pub const GOLD_SMALL_F32: f32 = 1f32 / GOLD_BIG_F32; // 0.618034 (Golden Ratio_)
+
 pub const MACHINE_EPSILON_F32: f32 = std::f32::EPSILON; // 1.1920929e-7
 pub const PI_F32: f32 = std::f32::consts::PI; // 3.1415927
 pub const TAU_F32: f32 = std::f32::consts::TAU; // 6.2831855 (2*PI)
 
 pub const E_F64: f64 = std::f64::consts::E; // 2.718281828459045 (Euler’s number)
-                                            // pub const GOLD_BIG_F64: f64 = std::f64::consts::PHI; // 1.618033988749895 (Golden Ratio)
-                                            // pub const GOLD_SMALL_F64: f64 = 1f64 / GOLD_BIG_F64; // 0.6180339887498948 (Golden Ratio_)
+
+// pub const GOLD_BIG_F64: f64 = std::f64::consts::PHI; // 1.618033988749895 (Golden Ratio)
+// pub const GOLD_SMALL_F64: f64 = 1f64 / GOLD_BIG_F64; // 0.6180339887498948 (Golden Ratio_)
+
 pub const MACHINE_EPSILON_F64: f64 = std::f64::EPSILON; // 2.220446049250313e-16
 pub const PI_F64: f64 = std::f64::consts::PI; // 3.141592653589793
 pub const TAU_F64: f64 = std::f64::consts::TAU; // 6.283185307179586 (2*PI)
@@ -1277,7 +1314,7 @@ mod tests {
             let n = mega(1);
 
             let func = test_;
-            bench(func, get_function_name(func), n, q);
+            bench(func, get_name(func), n, q);
         }
     }
 
@@ -1296,7 +1333,7 @@ mod tests {
             let n = mega(1);
 
             let func = neg_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
         }
     }
 
@@ -1315,10 +1352,10 @@ mod tests {
             let n = mega(1);
 
             let func = u16_to_be_bytes_hm_best_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
 
             let func = u16_to_be_bytes_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
         }
     }
 
@@ -1335,10 +1372,10 @@ mod tests {
             let n = mega(1);
 
             let func = u16_from_be_bytes_hm_best_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
 
             let func = u16_from_be_bytes_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
         }
     }
 
@@ -1397,28 +1434,28 @@ mod tests {
             let n = mega(1);
 
             let func = first_alphabetic_hm_matches_byt_best_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
 
             let func = first_alphabetic_hm_matches_int_;
-            // bench(func, get_function_name_short(func), n, q);
+            // bench(func, get_name_short(func), n, q);
 
             let func = first_alphabetic_hm_range_l_;
-            // bench(func, get_function_name_short(func), n, q);
+            // bench(func, get_name_short(func), n, q);
 
             let func = first_alphabetic_hm_range_u_;
-            //bench(func, get_function_name_short(func), n, q);
+            //bench(func, get_name_short(func), n, q);
 
             let func = first_alphabetic_bytes_;
-            //bench(func, get_function_name_short(func), n, q);
+            //bench(func, get_name_short(func), n, q);
 
             let func = first_alphabetic_match_;
-            //bench(func, get_function_name_short(func), n, q);
+            //bench(func, get_name_short(func), n, q);
 
             let func = first_alphabetic_next_;
-            //bench(func, get_function_name_short(func), n, q);
+            //bench(func, get_name_short(func), n, q);
 
             let func = first_alphabetic_starts_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
         }
     }
 
@@ -1440,9 +1477,9 @@ mod tests {
             let n = mega(1);
 
             let func = is_octal_int_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
             let func = is_octal_byt_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
         }
     }
 
@@ -1473,13 +1510,13 @@ mod tests {
             let n = mega(1);
 
             let func = is_binary_hm_best_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
             let func = is_binary_hm_matches_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
             let func = is_binary_all_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
             let func = is_binary_not_any_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
         }
     }
 
@@ -1495,7 +1532,7 @@ mod tests {
             let n = mega(1);
 
             let func = hexstr2int_from_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
         }
     }
 
@@ -1515,10 +1552,10 @@ mod tests {
             let n = mega(1);
 
             let func = decstr2u8_parse_best_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
 
             let func = decstr2u8_from_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
         }
     }
 
@@ -1547,13 +1584,13 @@ mod tests {
             let n = mega(1);
 
             let func = get_lowest_bit_match_tz_best_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
 
             let func = get_lowest_bit_match_match_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
 
             let func = get_lowest_bit_match_if_;
-            bench(func, get_function_name_short(func), n, q);
+            bench(func, get_name_short(func), n, q);
         }
     }
 }
