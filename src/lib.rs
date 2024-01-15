@@ -1,4 +1,5 @@
 #![allow(unused)]
+pub const DEBUG: bool = true;
 
 /*  */
 
@@ -7,22 +8,6 @@ use std::collections::*;
 /*  */
 
 /* MACROS */
-#[macro_export]
-macro_rules! exit {
-	() => {
-		$crate::exit!(1);
-	};
-
-	( $num:expr $(,)? ) => {
-		::std::process::exit($num);
-	};
-
-	( $num:expr, $fmt:expr $( , $arg:expr )* $(,)? ) => {{
-		eprintln!($fmt $( , $arg )*);
-		$crate::exit!($num);
-	}};
-}
-
 pub trait IsEven {
     fn is_even(&self) -> bool;
 }
@@ -51,6 +36,22 @@ macro_rules! prim_impl {
 
 prim_impl!(i8 u8 i16 u16 i32 u32 i64 u64 i128 u128 isize usize);
 
+#[macro_export]
+macro_rules! exit {
+	() => {
+		$crate::exit!(1);
+	};
+
+	( $num:expr $(,)? ) => {
+		::std::process::exit($num);
+	};
+
+	( $num:expr, $fmt:expr $( , $arg:expr )* $(,)? ) => {{
+		eprintln!($fmt $( , $arg )*);
+		$crate::exit!($num);
+	}};
+}
+
 /*  */
 
 /* ENUMS */
@@ -69,13 +70,14 @@ pub enum Radix {
 /*  */
 
 /* CONSTS */
+pub const ASCII_LOWERCASE: u8 = 0x20; // Ascii Lowercase Mask
 pub const ERR: &str = "Error";
 pub const LSB: u16 = 0x00FF; // Less Significant Byte Mask (8-bit)
 pub const MSB: u16 = 0xFF00; // Most Significant Byte Mask (8-bit)
 pub const LSN: u8 = 0x0F; // Less Significant Nibble Mask (4-bit)
 pub const MSN: u8 = 0xF0; // Most Significant Nibble Mask (4-bit)
 pub const SIG: u8 = 0x80; // Signed value limit (8-bit)
-pub const NULL: u8 = 0;
+pub const NULL: u8 = b'\0'; // Null character
 
 // pub const BIN_DIGITS: [char; 2] = ['0', '1'];
 // pub const OCT_DIGITS: [char; 8] = ['0', '1', '2', '3', '4', '5', '6', '7'];
@@ -137,7 +139,7 @@ pub fn print_map<K: std::fmt::Debug, V: std::fmt::Debug>(src: &HashMap<K, V>) {
 
 /*  */
 
-pub fn with_sep(src: usize) -> String {
+pub fn separated(src: usize) -> String {
     src.to_string()
         .as_bytes()
         .rchunks(3)
@@ -181,7 +183,7 @@ pub fn bench(func: fn(), func_name: &str, n: usize, q: usize) {
     println!(
         " => [ Executed {:?} {} times in {:.?} ] -> [ Duration: {}ns each ({:?})]",
         func_name,
-        with_sep(times),
+        separated(times),
         elapsed,
         each.as_nanos(),
         each
@@ -194,21 +196,25 @@ pub fn bench(func: fn(), func_name: &str, n: usize, q: usize) {
 
 /* STRING CHECKS */
 pub fn first_alphabetic_hm_matches_byt_best(src: &str) -> bool {
-    matches!(0x20 | src.as_bytes()[0], b'a'..=b'z') // to lower
+    matches!(ASCII_LOWERCASE | src.as_bytes()[0], b'a'..=b'z') // to lower
 }
 
 pub fn first_alphabetic_hm_matches_int(src: &str) -> bool {
-    matches!(0x20 | src.as_bytes()[0], 0x61..=0x7A) // to lower
+    matches!(ASCII_LOWERCASE | src.as_bytes()[0], 0x61..=0x7A) // to lower
 }
 
 pub fn first_alphabetic_hm_range_l(src: &str) -> bool {
-    let lower = 0x20 | src.as_bytes()[0]; // to lower
+    let lower = ASCII_LOWERCASE | src.as_bytes()[0]; // to lower
     lower > 0x60 && lower < 0x7B
 }
 
 pub fn first_alphabetic_hm_range_u(src: &str) -> bool {
     let byte = src.as_bytes()[0];
-    let upper = if byte < 0x61 { byte } else { 0x20 ^ byte };
+    let upper = if byte < 0x61 {
+        byte
+    } else {
+        ASCII_LOWERCASE ^ byte
+    };
     upper > 0x40 && upper < 0x5B
 }
 
@@ -218,7 +224,7 @@ pub fn first_alphabetic_bytes(src: &str) -> bool {
 
 pub fn first_alphabetic_match(src: &str) -> bool {
     match src.bytes().next() {
-        Some(b) => matches!(0x20 | b, b'a'..=b'z'),
+        Some(b) => matches!(ASCII_LOWERCASE | b, b'a'..=b'z'),
         None => false,
     }
 }
