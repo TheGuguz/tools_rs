@@ -7,6 +7,22 @@ use std::collections::*;
 /*  */
 
 /* MACROS */
+#[macro_export]
+macro_rules! exit {
+	() => {
+		$crate::exit!(1);
+	};
+
+	( $num:expr $(,)? ) => {
+		::std::process::exit($num);
+	};
+
+	( $num:expr, $fmt:expr $( , $arg:expr )* $(,)? ) => {{
+		eprintln!($fmt $( , $arg )*);
+		$crate::exit!($num);
+	}};
+}
+
 pub trait IsEven {
     fn is_even(&self) -> bool;
 }
@@ -662,10 +678,10 @@ pub fn generic_add<T: std::ops::Add<Output = T>>(lhs: T, rhs: T) -> T {
     lhs + rhs
 }
 
-pub fn quit(msg: &str, code: i32) {
-    println!("\n[{}] Exiting with code {}", msg, code);
-    std::process::exit(code);
-}
+// pub fn quit(msg: &str, code: i32) {
+//     println!("\n[{}] Exiting with code {}", msg, code);
+//     std::process::exit(code);
+// }
 
 /*  */
 
