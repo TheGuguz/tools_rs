@@ -36,6 +36,8 @@ macro_rules! prim_impl {
 
 prim_impl!(i8 u8 i16 u16 i32 u32 i64 u64 i128 u128 isize usize);
 
+/*  */
+
 #[macro_export]
 macro_rules! exit {
 	() => {
@@ -79,15 +81,19 @@ pub const MSN: u8 = 0xF0; // Most Significant Nibble Mask (4-bit)
 pub const SIG: u8 = 0x80; // Signed value limit (8-bit)
 pub const NULL: u8 = b'\0'; // Null character
 
-// pub const BIN_DIGITS: [char; 2] = ['0', '1'];
-// pub const OCT_DIGITS: [char; 8] = ['0', '1', '2', '3', '4', '5', '6', '7'];
-// pub const DEC_DIGITS: [char; 10] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-// pub const HEX_DIGITS: [char; 22] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'a', 'b', 'c', 'd', 'e', 'f'];
+/*
+pub const BIN_DIGITS: [char; 2] = ['0', '1'];
+pub const OCT_DIGITS: [char; 8] = ['0', '1', '2', '3', '4', '5', '6', '7'];
+pub const DEC_DIGITS: [char; 10] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+pub const HEX_DIGITS: [char; 22] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'a', 'b', 'c', 'd', 'e', 'f'];
+*/
 
-// pub const BIN_DIGITS_: [u8; 2] = [b'0', b'1'];
-// pub const OCT_DIGITS_: [u8; 8] = [b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7'];
-// pub const DEC_DIGITS_: [u8; 10] = [b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9'];
-// pub const HEX_DIGITS_: [u8; 22] = [b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9', b'A', b'B', b'C', b'D', b'E', b'F', b'a', b'b', b'c', b'd', b'e', b'f'];
+/*
+pub const BIN_DIGITS_: [u8; 2] = [b'0', b'1'];
+pub const OCT_DIGITS_: [u8; 8] = [b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7'];
+pub const DEC_DIGITS_: [u8; 10] = [b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9'];
+pub const HEX_DIGITS_: [u8; 22] = [b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9', b'A', b'B', b'C', b'D', b'E', b'F', b'a', b'b', b'c', b'd', b'e', b'f'];
+*/
 
 /*  */
 
@@ -144,9 +150,9 @@ pub fn separated(n: usize) -> String {
         .as_bytes()
         .rchunks(3)
         .rev()
-        .map(|b| unsafe { std::str::from_utf8_unchecked(&b) })
+        .map(|byte| unsafe { std::str::from_utf8_unchecked(&byte) })
         .collect::<Vec<_>>()
-        .join(",") // separator
+        .join(",")
 }
 
 pub fn get_name<F: Fn()>(_: F) -> &'static str {
@@ -161,8 +167,6 @@ pub fn get_name_short<F: Fn()>(_: F) -> &'static str {
 
 /* BENCH */
 pub fn bench(func: fn(), func_name: &str, times: usize, exprs: usize) {
-    // println!();
-
     let mut i = times;
     let now = std::time::Instant::now();
 
@@ -188,45 +192,53 @@ pub fn bench(func: fn(), func_name: &str, times: usize, exprs: usize) {
         each.as_nanos(),
         each
     );
-
-    // println!();
 }
 
 /*  */
 
 /* STRING CHECKS */
-pub fn first_alphabetic_hm_matches_byt_best(s: &str) -> bool {
-    matches!(ASCII_LOWERCASE | s.as_bytes()[0], b'a'..=b'z') // to lower
-}
-
-pub fn first_alphabetic_hm_matches_int(s: &str) -> bool {
-    matches!(ASCII_LOWERCASE | s.as_bytes()[0], 0x61..=0x7A) // to lower
-}
-
 pub fn first_alphabetic_hm_range_l(s: &str) -> bool {
-    let lower = ASCII_LOWERCASE | s.as_bytes()[0]; // to lower
+    let lower = ASCII_LOWERCASE | s.as_bytes()[0];
     lower > 0x60 && lower < 0x7B
 }
 
+pub fn first_alphabetic_match(s: &str) -> bool {
+    // match s.bytes().next() {
+    //     Some(b) => matches!(ASCII_LOWERCASE | b, b'a'..=b'z'),
+    //     None => false,
+    // }
+
+    match (ASCII_LOWERCASE | s.as_bytes()[0]) {
+        0x60..=0x7A => true,
+        _ => false,
+    }
+}
+
+pub fn first_alphabetic_hm_matches_byt(s: &str) -> bool {
+    matches!(ASCII_LOWERCASE | s.as_bytes()[0], b'a'..=b'z')
+}
+
+pub fn first_alphabetic_hm_matches_int(s: &str) -> bool {
+    matches!(ASCII_LOWERCASE | s.as_bytes()[0], 0x61..=0x7A)
+}
+
+pub fn first_alphabetic_cmp(s: &str) -> bool {
+    let first = s.as_bytes()[0];
+    let is_upper = first < 0x60;
+    let upper = is_upper as u8 * first + !is_upper as u8 * (ASCII_LOWERCASE ^ first); // Branchless
+    upper > 0x40 && upper < 0x5B
+}
+
 pub fn first_alphabetic_hm_range_u(s: &str) -> bool {
-    let byte = s.as_bytes()[0];
-    let upper = if byte < 0x61 {
-        byte
-    } else {
-        ASCII_LOWERCASE ^ byte
-    };
+    let first = s.as_bytes()[0];
+    let is_lower = first > 0x60;
+    // let upper = if is_lower { first } else { ASCII_LOWERCASE ^ first }; // If-Else
+    let upper = is_lower as u8 * (ASCII_LOWERCASE ^ first) + !is_lower as u8 * first; // Branchless
     upper > 0x40 && upper < 0x5B
 }
 
 pub fn first_alphabetic_bytes(s: &str) -> bool {
     (s.as_bytes()[0]).is_ascii_alphabetic()
-}
-
-pub fn first_alphabetic_match(s: &str) -> bool {
-    match s.bytes().next() {
-        Some(b) => matches!(ASCII_LOWERCASE | b, b'a'..=b'z'),
-        None => false,
-    }
 }
 
 pub fn first_alphabetic_next(s: &str) -> bool {
@@ -263,8 +275,8 @@ pub fn is_alphanumeric(s: &str) -> bool {
 
 pub fn is_hexadecimal(s: &str) -> bool {
     // s.bytes().all(|b: u8| b == b'_' || b.is_ascii_hexdigit())
-    for b in s.bytes() {
-        match b {
+    for byte in s.bytes() {
+        match byte {
             b'_' | b'A'..=b'F' | b'a'..=b'f' | b'0'..=b'9' => (),
             _ => return false,
         }
@@ -274,8 +286,8 @@ pub fn is_hexadecimal(s: &str) -> bool {
 
 pub fn is_decimal(s: &str) -> bool {
     // s.bytes().all(|b: u8| b == b'_' || b.is_ascii_digit())
-    for b in s.bytes() {
-        match b {
+    for byte in s.bytes() {
+        match byte {
             b'_' | b'0'..=b'9' => (),
             _ => return false,
         }
@@ -285,8 +297,8 @@ pub fn is_decimal(s: &str) -> bool {
 
 pub fn is_octal_int(s: &str) -> bool {
     // s.bytes().all(|b: u8| b == b'_' || matches!(b, 0x30..=0x37))
-    for b in s.bytes() {
-        match b {
+    for byte in s.bytes() {
+        match byte {
             0x5F | 0x30..=0x37 => (),
             _ => return false,
         }
@@ -296,8 +308,8 @@ pub fn is_octal_int(s: &str) -> bool {
 
 pub fn is_octal_byt(s: &str) -> bool {
     // s.bytes().all(|b: u8| b == b'_' || matches!(b, b'0'..=b'7'))
-    for b in s.bytes() {
-        match b {
+    for byte in s.bytes() {
+        match byte {
             b'_' | b'0'..=b'7' => (),
             _ => return false,
         }
@@ -305,46 +317,53 @@ pub fn is_octal_byt(s: &str) -> bool {
     true
 }
 
-pub fn is_binary_hm_best(s: &str) -> bool {
-    for b in s.bytes() {
-        if !(b == b'0' || b == b'1' || b == b'_') {
-            return false;
-        }
-    }
-    true
-}
-
-pub fn is_binary_hm_matches(s: &str) -> bool {
-    for b in s.bytes() {
-        if !matches!(b, b'0' | b'1' | b'_') {
+pub fn is_binary_hm_matches_best(s: &str) -> bool {
+    for byte in s.bytes() {
+        let valid = matches!(byte, b'_' | b'0' | b'1');
+        if !valid {
             return false;
         }
     }
     return true;
 }
 
+pub fn is_binary_hm_bool(s: &str) -> bool {
+    for byte in s.bytes() {
+        let valid = byte == b'_' || byte == b'0' || byte == b'1';
+        if !valid {
+            return false;
+        }
+    }
+    true
+}
+
 pub fn is_binary_all(s: &str) -> bool {
-    s.bytes().all(|b: u8| b == b'_' || b == b'0' || b == b'1')
+    let test = |b: u8| b == b'_' || b == b'0' || b == b'1';
+    s.bytes().all(test)
 }
 
 pub fn is_binary_not_any(s: &str) -> bool {
-    !s.bytes()
-        .any(|b: u8| !(b == b'_' || b == b'0' || b == b'1'))
+    // let clos = |b: u8| !(b == b'_' || b == b'0' || b == b'1');
+    let test = |b: u8| b != b'_' && b != b'0' && b != b'1';
+    !s.bytes().any(test)
 }
 
 /*  */
 
 /* STRING CLEAN-UP (Return the String with characters stripped) */
 pub fn strip_non_alphanumeric(s: &str) -> String {
-    s.chars().filter(|c: &char| c.is_alphanumeric()).collect()
+    let test = |c: &char| c.is_alphanumeric();
+    s.chars().filter(test).collect()
 }
 
 pub fn strip_non_hexadecimal(s: &str) -> String {
-    s.chars().filter(|c: &char| c.is_digit(16)).collect()
+    let test = |c: &char| c.is_digit(16);
+    s.chars().filter(test).collect()
 }
 
 pub fn strip_non_decimal(s: &str) -> String {
-    s.chars().filter(|c: &char| c.is_digit(10)).collect()
+    let test = |c: &char| c.is_digit(10);
+    s.chars().filter(test).collect()
 }
 
 /*  */
@@ -425,7 +444,6 @@ pub fn dec2u8_from(s: &str) -> u8 {
 /*  */
 
 pub fn dec2u16_parse(s: &str) -> u16 {
-    // asm: 190 lines
     s.parse::<u16>().unwrap()
 }
 
@@ -475,7 +493,6 @@ pub fn invert_byte(byt: u8) -> u8 {
 }
 
 pub fn negate_byte(byt: u8) -> u8 {
-    // 1 + !src
     byt.wrapping_neg()
 }
 
@@ -491,7 +508,6 @@ pub fn get_nth_bit(n: u8, pos: u8) -> u8 {
 }
 
 pub fn get_lowest_bit_match_tz_best(n: u8) -> Option<u32> {
-    // Returns the lsb bit position index (0..7) from a uint ; None if the uint is zero.
     match n {
         0 => None,
         _ => Some(n.trailing_zeros()),
@@ -499,7 +515,6 @@ pub fn get_lowest_bit_match_tz_best(n: u8) -> Option<u32> {
 }
 
 pub fn get_lowest_bit_match_match(n: u8) -> Option<u32> {
-    // Returns the lsb bit position index (0..7) from a uint ; None if the uint is zero.
     let mut pos: u32 = 0;
     match n {
         0 => None,
@@ -516,7 +531,6 @@ pub fn get_lowest_bit_match_match(n: u8) -> Option<u32> {
 }
 
 pub fn get_lowest_bit_match_if(n: u8) -> Option<u32> {
-    // Returns the lsb bit position index (0..7) from a uint ; None if the uint is zero.
     let mut pos: u32 = 0;
     match n {
         0 => None,
@@ -570,17 +584,9 @@ pub fn u16_to_be_bytes_hm_best(n: u16) -> [u8; 2] {
 /*  */
 
 /* MERGE BYTES */
-// pub fn u16_from_le_bytes(lower: u8, upper: u8) -> u16 {
-//     u16::from_le_bytes([lower, upper])
-// }
-
 pub fn u16_from_be_bytes(upper: u8, lower: u8) -> u16 {
     u16::from_be_bytes([upper, lower])
 }
-
-// pub fn u16_from_le_bytes_hm(lower: u8, upper: u8) -> u16 {
-//     lower as u16 | (upper as u16) << 8
-// }
 
 pub fn u16_from_be_bytes_hm_best(upper: u8, lower: u8) -> u16 {
     (upper as u16) << 8 | lower as u16
@@ -706,7 +712,6 @@ pub fn read_to_buffer(path: &str) -> std::io::BufReader<std::fs::File> {
 
 pub fn write_file(path: String, data: &[u8]) {
     use std::io::Write;
-    // Write file from an Array[u8]
     std::fs::File::create(path).unwrap().write(data).unwrap();
 }
 
@@ -725,6 +730,7 @@ pub fn generic_add<T: std::ops::Add<Output = T>>(lhs: T, rhs: T) -> T {
 
 /*  */
 
+/*
 /* EXPERIMENTS */
 pub mod experiments {
     pub fn asm_experiments() {
@@ -749,6 +755,7 @@ pub mod experiments {
         }
     }
 }
+*/
 
 /*  */
 
@@ -1021,7 +1028,7 @@ mod vectors {
         lerp(rd_lo, rd_hi, unlerp(rs_lo, rs_hi, sval))
     }
 
-    /* // */
+    /*  */
 
     // Constructors
     pub fn ivec2(x: i32, y: i32) -> IVec2 {
@@ -1056,16 +1063,31 @@ mod vectors {
         }
     }
 
-    /* // */
+    /*  */
 }
 
 /*  */
 
 #[cfg(test)]
 mod tests {
+    // base = 1.8ns
     // 3 cycles per ns @ 3.2Ghz
     // 50_000_000 cycles in 16.67ms => 60fps
     use super::*;
+
+    #[test]
+    fn sample_test_() {
+        fn test_() {
+            //
+        }
+        {
+            let exprs = 1;
+            let times = mega(1);
+
+            let func = test_;
+            bench(func, get_name(func), times, exprs);
+        }
+    }
 
     #[test]
     fn zero_test() {
@@ -1100,20 +1122,6 @@ mod tests {
 
         let dval = range(10f32, 100f32, 2000f32, 20000f32, 20f32);
         assert_eq!(dval, 4000f32);
-    }
-
-    #[test]
-    fn maths0_() {
-        use vectors::*;
-    }
-
-    #[test]
-    fn maths1_() {
-        use vectors::*;
-    }
-    #[test]
-    fn maths2_() {
-        use vectors::*;
     }
 
     #[test]
@@ -1302,28 +1310,9 @@ mod tests {
         assert_eq!(strip_non_decimal("1234_BABE_XYZ"), "1234");
     }
 
-    /*
-
-    #[test]
-    fn sample_test_() {
-        fn test_() {
-            // base = 1.8ns
-        }
-        {
-            let q = 1;
-            let n = mega(1);
-
-            let func = test_;
-            bench(func, get_name(func), n, q);
-        }
-    }
-
-    */
-
     #[test]
     fn test_neg_() {
         fn neg_() {
-            // base = 1.8ns
             negate_byte(0x00);
             negate_byte(0x80);
             negate_byte(0xFF);
@@ -1381,11 +1370,23 @@ mod tests {
 
     #[test]
     fn first_alpha_() {
-        fn first_alphabetic_hm_matches_byt_best_() {
-            assert!(first_alphabetic_hm_matches_byt_best("Hello") == true);
-            assert!(first_alphabetic_hm_matches_byt_best("hello") == true);
-            assert!(first_alphabetic_hm_matches_byt_best("{Hello") == false);
-            assert!(first_alphabetic_hm_matches_byt_best("0Hello") == false);
+        fn first_alphabetic_hm_range_l_() {
+            assert!(first_alphabetic_hm_range_l("Hello") == true);
+            assert!(first_alphabetic_hm_range_l("hello") == true);
+            assert!(first_alphabetic_hm_range_l("{Hello") == false);
+            assert!(first_alphabetic_hm_range_l("0Hello") == false);
+        }
+        fn first_alphabetic_match_() {
+            assert!(first_alphabetic_match("Hello") == true);
+            assert!(first_alphabetic_match("hello") == true);
+            assert!(first_alphabetic_match("{Hello") == false);
+            assert!(first_alphabetic_match("0Hello") == false);
+        }
+        fn first_alphabetic_hm_matches_byt_() {
+            assert!(first_alphabetic_hm_matches_byt("Hello") == true);
+            assert!(first_alphabetic_hm_matches_byt("hello") == true);
+            assert!(first_alphabetic_hm_matches_byt("{Hello") == false);
+            assert!(first_alphabetic_hm_matches_byt("0Hello") == false);
         }
         fn first_alphabetic_hm_matches_int_() {
             assert!(first_alphabetic_hm_matches_int("Hello") == true);
@@ -1393,11 +1394,12 @@ mod tests {
             assert!(first_alphabetic_hm_matches_int("{Hello") == false);
             assert!(first_alphabetic_hm_matches_int("0Hello") == false);
         }
-        fn first_alphabetic_hm_range_l_() {
-            assert!(first_alphabetic_hm_range_l("Hello") == true);
-            assert!(first_alphabetic_hm_range_l("hello") == true);
-            assert!(first_alphabetic_hm_range_l("{Hello") == false);
-            assert!(first_alphabetic_hm_range_l("0Hello") == false);
+
+        fn first_alphabetic_cmp_() {
+            assert!(first_alphabetic_cmp("Hello") == true);
+            assert!(first_alphabetic_cmp("hello") == true);
+            assert!(first_alphabetic_cmp("{Hello") == false);
+            assert!(first_alphabetic_cmp("0Hello") == false);
         }
         fn first_alphabetic_hm_range_u_() {
             assert!(first_alphabetic_hm_range_u("Hello") == true);
@@ -1411,12 +1413,6 @@ mod tests {
             assert!(first_alphabetic_bytes("{Hello") == false);
             assert!(first_alphabetic_bytes("0Hello") == false);
         }
-        fn first_alphabetic_match_() {
-            assert!(first_alphabetic_match("Hello") == true);
-            assert!(first_alphabetic_match("hello") == true);
-            assert!(first_alphabetic_match("{Hello") == false);
-            assert!(first_alphabetic_match("0Hello") == false);
-        }
         fn first_alphabetic_next_() {
             assert!(first_alphabetic_next("Hello") == true);
             assert!(first_alphabetic_next("hello") == true);
@@ -1429,31 +1425,28 @@ mod tests {
             assert!(first_alphabetic_starts("{Hello") == false);
             assert!(first_alphabetic_starts("0Hello") == false);
         }
+
         {
             let q = 4;
             let n = mega(1);
 
-            let func = first_alphabetic_hm_matches_byt_best_;
+            let func = first_alphabetic_hm_range_l_;
+            bench(func, get_name_short(func), n, q);
+            let func = first_alphabetic_match_;
+            bench(func, get_name_short(func), n, q);
+            let func = first_alphabetic_hm_matches_int_;
+            bench(func, get_name_short(func), n, q);
+            let func = first_alphabetic_hm_matches_byt_;
             bench(func, get_name_short(func), n, q);
 
-            let func = first_alphabetic_hm_matches_int_;
-            // bench(func, get_name_short(func), n, q);
-
-            let func = first_alphabetic_hm_range_l_;
-            // bench(func, get_name_short(func), n, q);
-
+            let func = first_alphabetic_cmp_;
+            bench(func, get_name_short(func), n, q);
             let func = first_alphabetic_hm_range_u_;
-            //bench(func, get_name_short(func), n, q);
-
+            bench(func, get_name_short(func), n, q);
             let func = first_alphabetic_bytes_;
-            //bench(func, get_name_short(func), n, q);
-
-            let func = first_alphabetic_match_;
-            //bench(func, get_name_short(func), n, q);
-
+            bench(func, get_name_short(func), n, q);
             let func = first_alphabetic_next_;
-            //bench(func, get_name_short(func), n, q);
-
+            bench(func, get_name_short(func), n, q);
             let func = first_alphabetic_starts_;
             bench(func, get_name_short(func), n, q);
         }
@@ -1485,15 +1478,15 @@ mod tests {
 
     #[test]
     fn all_binary_() {
-        fn is_binary_hm_best_() {
-            assert!(is_binary_hm_best("10_01") == true);
-            assert!(is_binary_hm_best("20_00") == false);
-            assert!(is_binary_hm_best("10_02") == false);
+        fn is_binary_hm_bool_() {
+            assert!(is_binary_hm_bool("10_01") == true);
+            assert!(is_binary_hm_bool("20_00") == false);
+            assert!(is_binary_hm_bool("10_02") == false);
         }
-        fn is_binary_hm_matches_() {
-            assert!(is_binary_hm_matches("10_01") == true);
-            assert!(is_binary_hm_matches("20_00") == false);
-            assert!(is_binary_hm_matches("10_02") == false);
+        fn is_binary_hm_matches_best_() {
+            assert!(is_binary_hm_matches_best("10_01") == true);
+            assert!(is_binary_hm_matches_best("20_00") == false);
+            assert!(is_binary_hm_matches_best("10_02") == false);
         }
         fn is_binary_all_() {
             assert!(is_binary_all("10_01") == true);
@@ -1509,9 +1502,9 @@ mod tests {
             let q = 3;
             let n = mega(1);
 
-            let func = is_binary_hm_best_;
+            let func = is_binary_hm_bool_;
             bench(func, get_name_short(func), n, q);
-            let func = is_binary_hm_matches_;
+            let func = is_binary_hm_matches_best_;
             bench(func, get_name_short(func), n, q);
             let func = is_binary_all_;
             bench(func, get_name_short(func), n, q);
@@ -1539,7 +1532,6 @@ mod tests {
     #[test]
     fn decstr2int_() {
         fn decstr2u8_parse_best_() {
-            // Best
             assert_eq!(dec2u8_parse_best("10"), 0xA);
             assert_eq!(dec2u8_parse_best("128"), 0x80);
         }
