@@ -1,0 +1,14 @@
+brace_style = "AlwaysNextLine"
+control_brace_style = "AlwaysNextLine"
+# format_macro_bodies = true
+# format_macro_matchers = true
+hex_literal_case = "Upper"
+max_width = 110
+merge_derives = true
+merge_imports = true
+reorder_impl_items = true
+reorder_imports = true
+reorder_modules = true
+spaces_around_ranges = true
+version = "Two"
+edition = "2021"
