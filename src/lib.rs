@@ -1,5 +1,5 @@
-#![allow(unused)]
-pub const DEBUG: bool = true;
+// #![allow(unused)]
+pub const DEBUG: bool = false;
 
 /*  */
 
@@ -12,17 +12,35 @@ pub trait IsEven
 {
     fn is_even(&self) -> bool;
 }
+
 pub trait IsOdd
 {
     fn is_odd(&self) -> bool;
 }
-macro_rules! prim_impl {    ($($t:tt)*) => {        $(            impl IsEven for $t
-            {                fn is_even(&self) -> bool
-                {                    self & 1 == 0
-                }            }            impl IsOdd for $t
-            {                fn is_odd(&self) -> bool
-                {                    self & 1 != 0
-                }            }        )*    };}
+
+macro_rules! prim_impl
+{
+    ( $( $t:tt )* ) =>
+        {
+            $(
+                impl IsEven for $t
+                    {
+                        fn is_even(&self) -> bool
+                        {
+                            self & 1 == 0
+                        }
+                    }
+                    impl IsOdd for $t
+                    {
+                        fn is_odd(&self) -> bool
+                        {
+                            self & 1 != 0
+                        }
+                    }
+            )*
+        };
+}
+
 prim_impl!(i8 u8 i16 u16 i32 u32 i64 u64 i128 u128 isize usize);
 
 /*  */
@@ -841,7 +859,7 @@ pub fn read_to_bytes(path: &str) -> Vec<u8>
 pub fn read_to_bytes_end(path: &str) -> Vec<u8>
 {
     let mut vec: Vec<u8> = Vec::new();
-    std::io::Read::read_to_end(&mut std::fs::File::open(path).unwrap(), &mut vec);
+    let _ = std::io::Read::read_to_end(&mut std::fs::File::open(path).unwrap(), &mut vec);
     vec
 }
 
@@ -890,6 +908,7 @@ pub fn generic_add<T: std::ops::Add<Output = T>>(lhs: T, rhs: T) -> T
 /*  */
 
 /*
+
 /* EXPERIMENTS */
 pub mod experiments {
     pub fn asm_experiments() {
@@ -914,11 +933,12 @@ pub mod experiments {
         }
     }
 }
+
 */
 
 /*  */
 
-///*
+/*
 
 /* MISC. CONSTANTS */
 pub const MIN_I8: i8 = i8::MIN;
@@ -1192,7 +1212,11 @@ pub struct U64MINMAX
     max: u64,
 }
 
+*/
+
 /*  */
+
+/*
 
 mod vectors
 {
@@ -1282,6 +1306,8 @@ mod vectors
 
     /*  */
 }
+
+*/
 
 /*  */
 
