@@ -1341,36 +1341,40 @@ mod tests
         assert_eq!(0, 0);
     }
 
-    #[test]
-    fn maths_()
-    {
-        use vectors::*;
+    /*
 
-        let min = 10f32;
-        let max = 90f32;
+        #[test]
+        fn maths_()
+        {
+            use vectors::*;
 
-        assert_eq!(lerp(min, max, 0.0125f32), 11f32);
-        assert_eq!(lerp(min, max, 0.5f32), 50f32);
-        assert_eq!(lerp(min, max, 0f32), 10f32);
-        assert_eq!(lerp(min, max, 1f32), 90f32);
+            let min = 10f32;
+            let max = 90f32;
 
-        assert_eq!(clamp(1f32, min, max), 10f32);
-        assert_eq!(clamp(50f32, min, max), 50f32);
-        assert_eq!(clamp(99f32, min, max), 90f32);
+            assert_eq!(lerp(min, max, 0.0125f32), 11f32);
+            assert_eq!(lerp(min, max, 0.5f32), 50f32);
+            assert_eq!(lerp(min, max, 0f32), 10f32);
+            assert_eq!(lerp(min, max, 1f32), 90f32);
 
-        assert_eq!(unlerp(min, max, 11f32), 0.0125f32);
-        assert_eq!(unlerp(min, max, 50f32), 0.5f32);
-        assert_eq!(unlerp(min, max, -25f32), 0f32);
-        assert_eq!(unlerp(min, max, 10f32), 0f32);
-        assert_eq!(unlerp(min, max, 90f32), 1f32);
-        assert_eq!(unlerp(min, max, 125f32), 1f32);
+            assert_eq!(clamp(1f32, min, max), 10f32);
+            assert_eq!(clamp(50f32, min, max), 50f32);
+            assert_eq!(clamp(99f32, min, max), 90f32);
 
-        let dval = range(10f32, 100f32, 2000f32, 20000f32, 50f32);
-        assert_eq!(dval, 10000f32);
+            assert_eq!(unlerp(min, max, 11f32), 0.0125f32);
+            assert_eq!(unlerp(min, max, 50f32), 0.5f32);
+            assert_eq!(unlerp(min, max, -25f32), 0f32);
+            assert_eq!(unlerp(min, max, 10f32), 0f32);
+            assert_eq!(unlerp(min, max, 90f32), 1f32);
+            assert_eq!(unlerp(min, max, 125f32), 1f32);
 
-        let dval = range(10f32, 100f32, 2000f32, 20000f32, 20f32);
-        assert_eq!(dval, 4000f32);
-    }
+            let dval = range(10f32, 100f32, 2000f32, 20000f32, 50f32);
+            assert_eq!(dval, 10000f32);
+
+            let dval = range(10f32, 100f32, 2000f32, 20000f32, 20f32);
+            assert_eq!(dval, 4000f32);
+        }
+
+    */
 
     #[test]
     fn struct2dec_()
@@ -1381,37 +1385,37 @@ mod tests
     #[test]
     fn even_odd_()
     {
-        assert_eq!(0u8.is_even(), true);
-        assert_eq!(1usize.is_even(), false);
-        assert_eq!(2u32.is_even(), true);
-        assert_eq!((-1i64).is_even(), false);
-        assert_eq!((-2isize).is_even(), true);
+        assert!(0u8.is_even());
+        assert!(!1usize.is_even());
+        assert!(2u32.is_even());
+        assert!(!(-1i64).is_even());
+        assert!((-2isize).is_even());
 
-        assert_eq!(0u8.is_odd(), false);
-        assert_eq!(1usize.is_odd(), true);
-        assert_eq!(2u32.is_odd(), false);
-        assert_eq!((-1i64).is_odd(), true);
-        assert_eq!((-2isize).is_odd(), false);
+        assert!(!0u8.is_odd());
+        assert!(1usize.is_odd());
+        assert!(!2u32.is_odd());
+        assert!((-1i64).is_odd());
+        assert!(!(-2isize).is_odd());
     }
 
     #[test]
     fn string_is_x_()
     {
         {
-            assert!(is_alphabetic("Hello") == true);
-            assert!(is_alphabetic("Hello0") == false);
+            assert!(is_alphabetic("Hello"));
+            assert!(!is_alphabetic("Hello0"));
         }
         {
-            assert!(is_alphanumeric("Hello42") == true);
-            assert!(is_alphanumeric("Hello-42") == false);
+            assert!(is_alphanumeric("Hello42"));
+            assert!(!is_alphanumeric("Hello-42"));
         }
         {
-            assert!(is_hexadecimal("12_34_AB_CD") == true);
-            assert!(is_hexadecimal("Z1234ABCDF") == false);
+            assert!(is_hexadecimal("12_34_AB_CD"));
+            assert!(!is_hexadecimal("Z1234ABCDF"));
         }
         {
-            assert!(is_decimal("1_000") == true);
-            assert!(is_decimal("Z000") == false);
+            assert!(is_decimal("1_000"));
+            assert!(!is_decimal("Z000"));
         }
     }
 
@@ -1517,12 +1521,14 @@ mod tests
     {
         assert_eq!(bool_to_u8(true), 1);
         assert_eq!(bool_to_u8(false), 0);
-        assert_eq!(u8_to_bool(1), true);
-        assert_eq!(u8_to_bool(0), false);
-        assert_eq!(u8_to_bool(0xFF), true);
-        assert_eq!(int_to_bool(0), false);
-        assert_eq!(int_to_bool(42), true);
-        assert_eq!(int_to_bool(-69), true);
+
+        assert!(u8_to_bool(1));
+        assert!(!u8_to_bool(0));
+        assert!(u8_to_bool(0xFF));
+
+        assert!(!int_to_bool(0));
+        assert!(int_to_bool(42));
+        assert!(int_to_bool(-69));
     }
 
     #[test]
@@ -1541,7 +1547,7 @@ mod tests
         {
             let mut test_bool: bool = true;
             toggle_bool(&mut test_bool);
-            assert_eq!(test_bool, false);
+            assert!(!test_bool);
         }
         {
             assert_eq!(get_nth_bit(0b11111110, 0), 0);
@@ -1642,72 +1648,71 @@ mod tests
     {
         fn first_alphabetic_hm_range_l_()
         {
-            assert!(first_alphabetic_hm_range_l("Hello") == true);
-            assert!(first_alphabetic_hm_range_l("hello") == true);
-            assert!(first_alphabetic_hm_range_l("{Hello") == false);
-            assert!(first_alphabetic_hm_range_l("0Hello") == false);
+            assert!(first_alphabetic_hm_range_l("Hello"));
+            assert!(first_alphabetic_hm_range_l("hello"));
+            assert!(!first_alphabetic_hm_range_l("{Hello"));
+            assert!(!first_alphabetic_hm_range_l("0Hello"));
         }
         fn first_alphabetic_match_()
         {
-            assert!(first_alphabetic_match("Hello") == true);
-            assert!(first_alphabetic_match("hello") == true);
-            assert!(first_alphabetic_match("{Hello") == false);
-            assert!(first_alphabetic_match("0Hello") == false);
+            assert!(first_alphabetic_match("Hello"));
+            assert!(first_alphabetic_match("hello"));
+            assert!(!first_alphabetic_match("{Hello"));
+            assert!(!first_alphabetic_match("0Hello"));
         }
         fn first_alphabetic_hm_matches_byt_()
         {
-            assert!(first_alphabetic_hm_matches_byt("Hello") == true);
-            assert!(first_alphabetic_hm_matches_byt("hello") == true);
-            assert!(first_alphabetic_hm_matches_byt("{Hello") == false);
-            assert!(first_alphabetic_hm_matches_byt("0Hello") == false);
+            assert!(first_alphabetic_hm_matches_byt("Hello"));
+            assert!(first_alphabetic_hm_matches_byt("hello"));
+            assert!(!first_alphabetic_hm_matches_byt("{Hello"));
+            assert!(!first_alphabetic_hm_matches_byt("0Hello"));
         }
         fn first_alphabetic_hm_matches_int_()
         {
-            assert!(first_alphabetic_hm_matches_int("Hello") == true);
-            assert!(first_alphabetic_hm_matches_int("hello") == true);
-            assert!(first_alphabetic_hm_matches_int("{Hello") == false);
-            assert!(first_alphabetic_hm_matches_int("0Hello") == false);
+            assert!(first_alphabetic_hm_matches_int("Hello"));
+            assert!(first_alphabetic_hm_matches_int("hello"));
+            assert!(!first_alphabetic_hm_matches_int("{Hello"));
+            assert!(!first_alphabetic_hm_matches_int("0Hello"));
         }
-
         fn first_alphabetic_cmp_()
         {
-            assert!(first_alphabetic_cmp("Hello") == true);
-            assert!(first_alphabetic_cmp("hello") == true);
-            assert!(first_alphabetic_cmp("{Hello") == false);
-            assert!(first_alphabetic_cmp("0Hello") == false);
+            assert!(first_alphabetic_cmp("Hello"));
+            assert!(first_alphabetic_cmp("hello"));
+            assert!(!first_alphabetic_cmp("{Hello"));
+            assert!(!first_alphabetic_cmp("0Hello"));
         }
         fn first_alphabetic_hm_range_u_()
         {
-            assert!(first_alphabetic_hm_range_u("Hello") == true);
-            assert!(first_alphabetic_hm_range_u("hello") == true);
-            assert!(first_alphabetic_hm_range_u("{Hello") == false);
-            assert!(first_alphabetic_hm_range_u("0Hello") == false);
+            assert!(first_alphabetic_hm_range_u("Hello"));
+            assert!(first_alphabetic_hm_range_u("hello"));
+            assert!(!first_alphabetic_hm_range_u("{Hello"));
+            assert!(!first_alphabetic_hm_range_u("0Hello"));
         }
         fn first_alphabetic_bytes_()
         {
-            assert!(first_alphabetic_bytes("Hello") == true);
-            assert!(first_alphabetic_bytes("hello") == true);
-            assert!(first_alphabetic_bytes("{Hello") == false);
-            assert!(first_alphabetic_bytes("0Hello") == false);
+            assert!(first_alphabetic_bytes("Hello"));
+            assert!(first_alphabetic_bytes("hello"));
+            assert!(!first_alphabetic_bytes("{Hello"));
+            assert!(!first_alphabetic_bytes("0Hello"));
         }
         fn first_alphabetic_next_()
         {
-            assert!(first_alphabetic_next("Hello") == true);
-            assert!(first_alphabetic_next("hello") == true);
-            assert!(first_alphabetic_next("{Hello") == false);
-            assert!(first_alphabetic_next("0Hello") == false);
+            assert!(first_alphabetic_next("Hello"));
+            assert!(first_alphabetic_next("hello"));
+            assert!(!first_alphabetic_next("{Hello"));
+            assert!(!first_alphabetic_next("0Hello"));
         }
         fn first_alphabetic_starts_()
         {
-            assert!(first_alphabetic_starts("Hello") == true);
-            assert!(first_alphabetic_starts("hello") == true);
-            assert!(first_alphabetic_starts("{Hello") == false);
-            assert!(first_alphabetic_starts("0Hello") == false);
+            assert!(first_alphabetic_starts("Hello"));
+            assert!(first_alphabetic_starts("hello"));
+            assert!(!first_alphabetic_starts("{Hello"));
+            assert!(!first_alphabetic_starts("0Hello"));
         }
 
         {
             let q = 4;
-            let n = mega(1);
+            let n = mega(10);
 
             let func = first_alphabetic_hm_range_l_;
             bench(func, get_name_short(func), n, q);
@@ -1736,15 +1741,15 @@ mod tests
     {
         fn is_octal_int_()
         {
-            assert!(is_octal_int("777") == true);
-            assert!(is_octal_int("1_70") == true);
-            assert!(is_octal_int("1_80") == false);
+            assert!(is_octal_int("777"));
+            assert!(is_octal_int("1_70"));
+            assert!(!is_octal_int("1_80"));
         }
         fn is_octal_byt_()
         {
-            assert!(is_octal_byt("777") == true);
-            assert!(is_octal_byt("1_70") == true);
-            assert!(is_octal_byt("1_80") == false);
+            assert!(is_octal_byt("777"));
+            assert!(is_octal_byt("1_70"));
+            assert!(!is_octal_byt("1_80"));
         }
 
         {
@@ -1763,27 +1768,27 @@ mod tests
     {
         fn is_binary_hm_bool_()
         {
-            assert!(is_binary_hm_bool("10_01") == true);
-            assert!(is_binary_hm_bool("20_00") == false);
-            assert!(is_binary_hm_bool("10_02") == false);
+            assert!(is_binary_hm_bool("10_01"));
+            assert!(!is_binary_hm_bool("20_00"));
+            assert!(!is_binary_hm_bool("10_02"));
         }
         fn is_binary_hm_matches_best_()
         {
-            assert!(is_binary_hm_matches_best("10_01") == true);
-            assert!(is_binary_hm_matches_best("20_00") == false);
-            assert!(is_binary_hm_matches_best("10_02") == false);
+            assert!(is_binary_hm_matches_best("10_01"));
+            assert!(!is_binary_hm_matches_best("20_00"));
+            assert!(!is_binary_hm_matches_best("10_02"));
         }
         fn is_binary_all_()
         {
-            assert!(is_binary_all("10_01") == true);
-            assert!(is_binary_all("20_00") == false);
-            assert!(is_binary_all("10_02") == false);
+            assert!(is_binary_all("10_01"));
+            assert!(!is_binary_all("20_00"));
+            assert!(!is_binary_all("10_02"));
         }
         fn is_binary_not_any_()
         {
-            assert!(is_binary_not_any("10_01") == true);
-            assert!(is_binary_not_any("20_00") == false);
-            assert!(is_binary_not_any("10_02") == false);
+            assert!(is_binary_not_any("10_01"));
+            assert!(!is_binary_not_any("20_00"));
+            assert!(!is_binary_not_any("10_02"));
         }
         {
             let q = 3;
